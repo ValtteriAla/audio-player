@@ -49,7 +49,7 @@ class App(tb.Window):
         song_index = self.get_set_next_song_index()
         self.set_current_song(song_index)
 
-    def play_song_index(self, index: int):
+    def play_song_by_index(self, index: int):
         self.set_playing(True)
         self.set_current_song(index)
 
@@ -58,7 +58,7 @@ class App(tb.Window):
 
     def resume(self):
         if not self.current_song:
-            self.play_song_index(0)
+            self.play_song_by_index(0)
         self.set_playing(True)
 
     def play_previous(self):
@@ -69,7 +69,7 @@ class App(tb.Window):
     def get_set_next_song_index(self) -> int:
         # Playlist has been played completely
         if self.current_playlist_song_index == len(self.playlist)-1:
-            next_index=0
+            next_index = 0
             self.set_playlist_song_index(next_index)
             return next_index
         next_index = self.current_playlist_song_index + 1
@@ -83,25 +83,33 @@ class App(tb.Window):
         self.set_playlist_song_index(next_index)
         return next_index
 
+    def shuffle_playlist(self):
+        self.playlist = sample(self.playlist, k=len(self.playlist))
+        current_song_filepath = self.current_song['filepath']
+        new_index = self.get_song_index_by_value(current_song_filepath)
+        self.set_playlist_song_index(new_index)
+
     def get_status(self) -> dict:
         if not self.current_song:
             return None
         return {"is_playing": self.is_playing, "song": self.current_song["name"]}
 
-    def shuffle_playlist(self):
-        self.playlist = sample(self.playlist, k=len(self.playlist))
-
     def get_playlist(self):
         return self.playlist
 
+    def get_song_index_by_value(self, value: str) -> int:
+        for i in range(len(self.playlist)):
+            song_name = self.playlist[i]['name']
+            song_filepath = self.playlist[i]['filepath']
+            if value == song_name or value == song_filepath:
+                return i
+        return None
 
 
 class Main(tb.Frame):
     def __init__(self, parent):
         '''
         # Main window
-        Has profile picture on the left side and\n
-        personal information form on the right side
         '''
         self.parent = parent
         default_button_width = 30
@@ -109,8 +117,8 @@ class Main(tb.Frame):
         frame = tb.Frame(self.parent, padding=8, width=2)
         frame.grid(column=0, row=0, sticky=N)
 
-        now_playing_label = Label(frame, (0,0), "Now Playing: ")
-        self.song_name_label = Label(frame, (0,1), "")
+        now_playing_label = Label(frame, (0, 0), "Now Playing: ")
+        self.song_name_label = Label(frame, (0, 1), "")
         previous_btn = tb.Button(
             frame, text="Previous", command=self.on_previous)
         self.play_pause_btn = tb.Button(
@@ -142,6 +150,7 @@ class Main(tb.Frame):
             self.play_pause_btn.configure(text="Pause")
             self.parent.resume()
             print("Clicked play (resume)")
+            self.set_now_playing_label()
 
     def on_next(self):
         print("Clicked next")
@@ -156,6 +165,7 @@ class Main(tb.Frame):
     def on_print(self):
         print(self.parent.get_status())
         print(self.parent.get_playlist())
+        print(self.parent.get_song_index_by_value("/to/file/path3.mp3"))
 
     def set_now_playing_label(self):
         current_song = self.parent.get_status()
@@ -327,7 +337,7 @@ class Label(tb.Frame):
         self.label = tb.Label(parent, text=text, justify=justify)
         self.label.grid(row=row, column=col, columnspan=colspan, sticky=sticky)
 
-    def change_label(self, text:str):
+    def change_label(self, text: str):
         self.label.configure(text=text)
 
 
