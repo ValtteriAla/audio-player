@@ -1,3 +1,6 @@
-# Media Player with GUI
+# Audio Player with Tkinter GUI
 
-Tkinter gui
+WIP. Need to find good audio library to play,stop,pause,resume audio (.mp3 formats).
+
+General playlist functions seems to be working (play, pause, next, previous..)
+
