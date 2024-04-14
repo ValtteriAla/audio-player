@@ -1,7 +1,5 @@
-from tkinter import filedialog
 import ttkbootstrap as tb
 from ttkbootstrap.constants import *
-from PIL import Image, ImageTk
 from random import sample
 
 
